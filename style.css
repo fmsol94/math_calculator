@@ -1,3 +1,9 @@
+@font-face {
+    font-family: displayCalculator;
+    src: url(Calculator.ttf);
+}
+@import url('https://fonts.googleapis.com/css?family=Roboto');
+
 *{
     margin: 0;
     padding: 0;
@@ -51,16 +57,33 @@ body {
 }
 
 .display {
-    height: 190px;
+    height: 220px;
     width: 470px;
     border-radius: 10px;
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: flex-end;
     background-color: #92CF8A;
     border-top: 20px solid #000;
     border-left: 20px solid #222;
     border-right: 20px solid #222;
     border-bottom: 20px solid #333;
+    
+}
+
+.displayupper {
+    background-color: #92CF8A;
+    color: #005005;
+    font-size: 50px;
+    font-family: "displayCalculator";
+}
+
+.displaylower {
+    background-color: #92CF8A;
+    color: #005005;
+    font-size: 100px;
+    font-family: "displayCalculator";
 }
 
 .buttons_row {
@@ -77,11 +100,50 @@ button {
     width: 85px;
     font-size: 45px;
     border-radius: 10px;
+    color: #FFF;
+    font-family: "Roboto";
+}
+.number {
+    background-color: #FFF;
+    color: #000;
+    border-top: 4px solid #DDD;
+    border-left: 4px solid #BBB;
+    border-right: 4px solid #999;
+    border-bottom: 4px solid #666;
+}
+.number:active {
+    border-top: 4px solid #666;
+    border-left: 4px solid #999;
+    border-right: 4px solid #BBB;
+    border-bottom: 4px solid #DDD;
 }
 
-.plus_minus {
-    margin-left: 10px;
+.memory {
+    background-color: #8B0000;
+    border-top: 4px solid #dc0202;
+    border-left: 4px solid #c20202;
+    border-right: 4px solid #720101;
+    border-bottom: 4px solid #400000;
 }
-.clear_m {
-    margin-right: 10px;
+
+.memory:active {
+    border-top: 4px solid #400000;
+    border-left: 4px solid #720101;
+    border-right: 4px solid #c20202;
+    border-bottom: 4px solid #dc0202;
+}
+
+.operation {
+    background-color: #00008B;
+    border-top: 4px solid hsl(240, 95%, 46%);
+    border-left: 4px solid #0202cd;
+    border-right: 4px solid #00006e;
+    border-bottom: 4px solid #000041;
+}
+
+.operation:active {
+    border-top: 4px solid #000041;
+    border-left: 4px solid #00006e;
+    border-right: 4px solid #0202cd;
+    border-bottom: 4px solid hsl(240, 95%, 46%);
 }
