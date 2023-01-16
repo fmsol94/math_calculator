@@ -11,6 +11,19 @@
     background-color: #008ECC;
 }
 
+sup {
+    vertical-align: super;
+    font-size: smaller;
+    background-color: #92CF8A;
+    color: #005005;
+}
+
+tenpower {
+    font-size: 50px;
+    background-color: #92CF8A;
+    color: #005005;
+}
+
 html, body {
     height: 100%;
     width: 100%;
@@ -75,6 +88,7 @@ body {
 .displayupper {
     background-color: #92CF8A;
     color: #005005;
+    height: 50px;
     font-size: 50px;
     font-family: "displayCalculator";
 }
@@ -106,11 +120,19 @@ button {
 .number {
     background-color: #FFF;
     color: #000;
+    transition: all .07s ease;
     border-top: 4px solid #DDD;
     border-left: 4px solid #BBB;
     border-right: 4px solid #999;
     border-bottom: 4px solid #666;
 }
+.number.pressed {
+    border-top: 4px solid #666;
+    border-left: 4px solid #999;
+    border-right: 4px solid #BBB;
+    border-bottom: 4px solid #DDD;
+}
+
 .number:active {
     border-top: 4px solid #666;
     border-left: 4px solid #999;
@@ -124,6 +146,14 @@ button {
     border-left: 4px solid #c20202;
     border-right: 4px solid #720101;
     border-bottom: 4px solid #400000;
+    transition: all .07s ease;
+}
+
+.memory.pressed {
+    border-top: 4px solid #400000;
+    border-left: 4px solid #720101;
+    border-right: 4px solid #c20202;
+    border-bottom: 4px solid #dc0202;
 }
 
 .memory:active {
@@ -139,6 +169,14 @@ button {
     border-left: 4px solid #0202cd;
     border-right: 4px solid #00006e;
     border-bottom: 4px solid #000041;
+    transition: all .07s ease;
+}
+
+.operation.pressed {
+    border-top: 4px solid #000041;
+    border-left: 4px solid #00006e;
+    border-right: 4px solid #0202cd;
+    border-bottom: 4px solid hsl(240, 95%, 46%);
 }
 
 .operation:active {
