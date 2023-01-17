@@ -1,15 +1,51 @@
 // Basic math operators:
+function get_decimals(a) {
+    let decimals_a = 0;
+    if (a.includes(".")) {
+        decimals_a = a.length - a.indexOf(".") - 1;
+    }
+    return decimals_a;
+}
+
+function round(num, n_decimals) {
+    let factor = 100**n_decimals;
+    return Math.round(num * factor) / factor;
+}
 function add(a, b) {
-    return a + b;
+    let decimals_a = get_decimals(a);
+    a = parseFloat(a);
+    
+    let decimals_b = get_decimals(b);
+    b = parseFloat(b);
+    
+    let c = a + b;
+    c = round(c, Math.max(decimals_a, decimals_b)).toString();
+    return c
 }
 function subtract(a, b) {
-    return a - b;
+    let decimals_a = get_decimals(a);
+    a = parseFloat(a);
+    
+    let decimals_b = get_decimals(b);
+    b = parseFloat(b);
+    
+    let c = a - b;
+    c = round(c, Math.max(decimals_a, decimals_b)).toString();
+    return c
 }
 function multiply(a, b) {
-    return a * b;
+    let decimals_a = get_decimals(a);
+    a = parseFloat(a);
+    
+    let decimals_b = get_decimals(b);
+    b = parseFloat(b);
+    
+    let c = a * b;
+    c = round(c, decimals_a + decimals_b).toString();
+    return c
 }
 function divide(a, b) {
-    return a / b;
+    return (a / b).toString();
 }
 
 function sqrt(a) {
@@ -17,7 +53,7 @@ function sqrt(a) {
 }
 
 function exponent(a, b) {
-    return a**b;
+    return (a**b).toString();
 }
 
 // Function to call previous basic operators.
@@ -31,8 +67,6 @@ function operate(operator, a, b) {
             return multiply(a, b);
         case '/':
             return divide(a, b);
-        case "√":
-            return sqrt(a);
         case "^":
             return exponent(a, b);
     }
@@ -72,10 +106,20 @@ function removeTransition(e){
     this.classList.remove('pressed');
 }
 
-function clearDisplays() {
+function clearUpperDisplay() {
     displayupper.textContent = "";
+}
+
+function clearLowerDisplay() {
     displaylower.textContent = "0.";
-    buffer = "0."
+}
+
+function resetCalc() {
+    clearUpperDisplay();
+    clearLowerDisplay();
+    buffers = [null, null];
+    operator = null;
+    buff_idx = 0;
 }
 
 function changeSignDisplay() {
@@ -89,12 +133,13 @@ function addNumberToUpperDisplay(input) {
     if (displayupper.textContent.length < 18){
         displayupper.textContent += input;
     }
-    buffer = displayupper.textContent;
+    buffers[buff_idx] = displayupper.textContent;
 }
 
 function deleteLastCharacter() {
     current_content = displayupper.textContent
     displayupper.textContent = current_content.slice(0, current_content.length - 1)
+    buffers = displayupper.textContent;
 }
 
 function addNumberToLowerDisplay(input) {
@@ -111,14 +156,26 @@ function addNumberToLowerDisplay(input) {
 
 function executeOperation() {
     if (operator === null) {
-        addNumberToLowerDisplay(buffer);
+        addNumberToLowerDisplay(buffers[buff_idx]);
+    } else {
+        result = operate(operator, buffers[0], buffers[1]);
+        addNumberToLowerDisplay(result);
+        buffers[0] = result;
+        buffers[1] = null;
+        buff_idx = 1;
     }
 }
 
 function manageKey(input) {
+    console.log(buffers)
+    if (clear_upper_next) {
+        clearUpperDisplay();
+        clear_upper_next = false;
+    }
+
     input = input.toLowerCase();
     if (["a", "ac"].includes(input)) {
-        clearDisplays();
+        resetCalc();
     }
     if (input == "c") {
         deleteLastCharacter();
@@ -128,9 +185,18 @@ function manageKey(input) {
     }
     if (input == "=") {
         executeOperation();
+        clear_upper_next = true;
     }
     if (valid_operations.includes(input)) {
-        operator = input;
+        if ((buffers[0] !== null)&(buffers[1] !== null)) {
+            executeOperation();
+            operator = input;
+            clear_upper_next = true;
+        } else {
+            operator = input;
+            buff_idx = Math.min(1, buff_idx+2);
+            clear_upper_next = true;
+        }
     }
     if (valid_numbers.includes(input)) {
         addNumberToUpperDisplay(input)
@@ -152,8 +218,9 @@ let valid_operations = [
 // Find elements and add listeners
 let displayupper = document.querySelector(".displayupper")
 let displaylower = document.querySelector(".displaylower")
-let buffer = "0.";
-let prev_op = null;
+let buffers = [null, null];
+let buff_idx = 0;
+let clear_upper_next = false;
 let operator = null;
 
 
@@ -164,6 +231,9 @@ window.addEventListener('keydown', function(e){
     }
     if (e.key == "Backspace") {
         match = "c";
+    }
+    if (e.key.toLowerCase() == "e") {
+        match = "^";
     }
     key = document.querySelector(`button[data-key="${match}"]`);
     if (!key) return;
