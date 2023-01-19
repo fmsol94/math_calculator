@@ -11,6 +11,7 @@ function round(num, n_decimals) {
     let factor = 100**n_decimals;
     return Math.round(num * factor) / factor;
 }
+
 function add(a, b) {
     let decimals_a = get_decimals(a);
     a = parseFloat(a);
@@ -22,6 +23,7 @@ function add(a, b) {
     c = round(c, Math.max(decimals_a, decimals_b)).toString();
     return c
 }
+
 function subtract(a, b) {
     let decimals_a = get_decimals(a);
     a = parseFloat(a);
@@ -33,6 +35,7 @@ function subtract(a, b) {
     c = round(c, Math.max(decimals_a, decimals_b)).toString();
     return c
 }
+
 function multiply(a, b) {
     let decimals_a = get_decimals(a);
     a = parseFloat(a);
@@ -44,12 +47,13 @@ function multiply(a, b) {
     c = round(c, decimals_a + decimals_b).toString();
     return c
 }
+
 function divide(a, b) {
     return (a / b).toString();
 }
 
 function sqrt(a) {
-    return Math.sqrt(a);
+    return Math.sqrt(a).toString();
 }
 
 function exponent(a, b) {
@@ -114,9 +118,9 @@ function clearLowerDisplay() {
     displaylower.textContent = "0.";
 }
 
-function resetCalc() {
-    clearUpperDisplay();
-    clearLowerDisplay();
+function resetCalc(clear_upper=1, clear_lower=1) {
+    if (clear_upper) {clearUpperDisplay()};
+    if (clear_lower) {clearLowerDisplay()};
     buffers = [null, null];
     operator = null;
     buff_idx = 0;
@@ -139,7 +143,7 @@ function addNumberToUpperDisplay(input) {
 function deleteLastCharacter() {
     current_content = displayupper.textContent
     displayupper.textContent = current_content.slice(0, current_content.length - 1)
-    buffers = displayupper.textContent;
+    buffers[buff_idx] = displayupper.textContent;
 }
 
 function addNumberToLowerDisplay(input) {
@@ -155,8 +159,9 @@ function addNumberToLowerDisplay(input) {
 }
 
 function executeOperation() {
-    if (operator === null) {
-        addNumberToLowerDisplay(buffers[buff_idx]);
+    if ((operator === null)|(buffers.includes(null))) {
+        let index = (buffers[buff_idx] === null)? +!buff_idx: buff_idx;
+        addNumberToLowerDisplay(buffers[index]);
     } else {
         result = operate(operator, buffers[0], buffers[1]);
         addNumberToLowerDisplay(result);
@@ -166,8 +171,32 @@ function executeOperation() {
     }
 }
 
+function executeSqrtOperation() {
+    buffers[buff_idx] = sqrt(buffers[buff_idx]);
+    displayupper.textContent = "√" + displayupper.textContent;
+    addNumberToLowerDisplay(buffers[buff_idx]);
+}
+
+function changeSign() {
+    let index = (buffers[buff_idx] === null)? +!buff_idx: buff_idx;
+    buffers[index] = (-1 * parseFloat(buffers[index])).toString();
+    clearUpperDisplay();
+    clearLowerDisplay();
+    addNumberToUpperDisplay(buffers[index]);
+    addNumberToLowerDisplay(buffers[index]);
+}
+
 function manageKey(input) {
+    console.log(input)
     console.log(buffers)
+    if (buffers.includes("Infinity")|buffers.includes("NaN")) {
+        resetCalc(1, 0);
+    }
+
+    if ((buffers[0] == null)&(buffers[1] != null)) {
+        buffers = [buffers[1], null];
+    }
+
     if (clear_upper_next) {
         clearUpperDisplay();
         clear_upper_next = false;
@@ -177,34 +206,53 @@ function manageKey(input) {
     if (["a", "ac"].includes(input)) {
         resetCalc();
     }
+
+    if ((input == "+/-") & ((buffers[0] !== null) | (buffers[1] !== null))) {
+        changeSign();
+    }
+
+    if ((input == "sqrt") & (buffers[buff_idx] !== null)) {
+        executeSqrtOperation();
+    }
+
     if (input == "c") {
         deleteLastCharacter();
     }
+
     if ((input === ".")&(displayupper.textContent.includes("."))){
         return;
     }
+
     if (input == "=") {
         executeOperation();
         clear_upper_next = true;
     }
+
     if (valid_operations.includes(input)) {
         if ((buffers[0] !== null)&(buffers[1] !== null)) {
             executeOperation();
             operator = input;
             clear_upper_next = true;
         } else {
-            operator = input;
-            buff_idx = Math.min(1, buff_idx+2);
-            clear_upper_next = true;
+            if (buffers[0] !== null) {
+                operator = input;
+                buff_idx = Math.min(1, buff_idx+2);
+                clear_upper_next = true;
+            }
         }
     }
+
     if (valid_numbers.includes(input)) {
         addNumberToUpperDisplay(input)
     }
 }
 
 function pressKey() {
-    manageKey(this.textContent)
+    let match = this.textContent;
+    match = (match == "÷")? "/": match;
+    match = (match == "x")? "*": match;
+    match = (match == "√")? "sqrt": match;
+    manageKey(match)
 }
 
 // Define useful arrays
@@ -212,7 +260,7 @@ let valid_numbers = [
     "0","1","2","3","4","5","6","7","8","9","."
 ];
 let valid_operations = [
-    "+","*","-","/","+","^", "√"
+    "+","*","-","/","+","^", 
 ];
 
 // Find elements and add listeners
@@ -234,6 +282,9 @@ window.addEventListener('keydown', function(e){
     }
     if (e.key.toLowerCase() == "e") {
         match = "^";
+    }
+    if (e.key.toLowerCase() == "s") {
+        match = "sqrt";
     }
     key = document.querySelector(`button[data-key="${match}"]`);
     if (!key) return;
